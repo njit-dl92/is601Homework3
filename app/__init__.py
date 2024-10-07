@@ -1,7 +1,8 @@
+# app/__init__.py
 import pkgutil
 import importlib
 import multiprocessing
-from app.commands import CommandHandler, Command
+from app.commands import CommandHandler
 
 class App:
     def __init__(self):
@@ -9,27 +10,26 @@ class App:
         self.processes = []
 
     def load_plugins(self):
-        # Dynamically load all plugins in the plugins directory
+        """Dynamically load all plugins in the plugins directory."""
         plugins_package = 'app.plugins'
         for _, plugin_name, is_pkg in pkgutil.iter_modules([plugins_package.replace('.', '/')]):
             if is_pkg:  # Ensure it's a package
                 plugin_module = importlib.import_module(f'{plugins_package}.{plugin_name}')
-                for item_name in dir(plugin_module):
-                    item = getattr(plugin_module, item_name)
-                    try:
-                        if issubclass(item, Command):  # Assuming a Command class exists
-                            self.command_handler.register_command(plugin_name, item())
-                    except TypeError:
-                        continue  # If item is not a class or unrelated class, just ignore
+                # Check if there is a register_commands function
+                if hasattr(plugin_module, 'register_commands'):
+                    plugin_module.register_commands(self.command_handler)
 
     def execute_in_process(self, command_input):
         """Execute the command in a separate process."""
-        process = multiprocessing.Process(target=self.command_handler.execute_command, args=(command_input,))
+        command_parts = command_input.split()
+        command_name = command_parts[0]
+        command_args = command_parts[1:]  # All arguments after the command name
+        process = multiprocessing.Process(target=self.command_handler.execute_command, args=(command_name, command_args))
         process.start()
         self.processes.append(process)
 
     def start(self):
-        # Register commands here
+        # Load and register commands here
         self.load_plugins()
         print("Type 'exit' to exit.")
         try:
@@ -50,3 +50,5 @@ class App:
                 process.terminate()
         for process in self.processes:
             process.join()
+
+
