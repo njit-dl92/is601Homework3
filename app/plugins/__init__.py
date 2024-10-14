@@ -2,6 +2,7 @@ import pkgutil
 import importlib
 from app.commands import CommandHandler
 from app.commands import Command
+import logging
 
 class App:
     def __init__(self): # Constructor
@@ -23,7 +24,7 @@ class App:
     def start(self):
         # Register commands here
         self.load_plugins()
-        print("Type 'exit' to exit.")
+        logging.info("Type 'exit' to exit.")
         while True:  #REPL Read, Evaluate, Print, Loop
             self.command_handler.execute_command(input(">>> ").strip())
 

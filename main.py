@@ -2,6 +2,7 @@ import sys
 from calculator import Calculator
 from decimal import Decimal, InvalidOperation
 from app import App
+import logging
 
 def calculate_and_print(a, b, operation_name):
     operation_mappings = {
@@ -16,19 +17,19 @@ def calculate_and_print(a, b, operation_name):
         a_decimal, b_decimal = map(Decimal, [a, b])
         result = operation_mappings.get(operation_name) # Use get to handle unknown operations
         if result:
-            print(f"The result of {a} {operation_name} {b} is equal to {result(a_decimal, b_decimal)}")
+            logging.info(f"The result of {a} {operation_name} {b} is equal to {result(a_decimal, b_decimal)}")
         else:
-            print(f"Unknown operation: {operation_name}")
+            logging.info(f"Unknown operation: {operation_name}")
     except InvalidOperation:
-        print(f"Invalid number input: {a} or {b} is not a valid number.")
+        logging.info(f"Invalid number input: {a} or {b} is not a valid number.")
     except ZeroDivisionError:
-        print("Error: Division by zero.")
+        logging.info("Error: Division by zero.")
     except Exception as e: # Catch-all for unexpected errors
-        print(f"An error occurred: {e}")
+        logging.info(f"An error occurred: {e}")
 
 def main():
     if len(sys.argv) != 4:
-        print("Usage: python calculator_main.py <number1> <number2> <operation>")
+        logging.info("Usage: python calculator_main.py <number1> <number2> <operation>")
         sys.exit(1)
     
     _, a, b, operation = sys.argv
