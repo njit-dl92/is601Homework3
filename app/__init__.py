@@ -1,8 +1,6 @@
-# app/__init__.py
 import os
 import pkgutil
 import importlib
-import sys
 import multiprocessing
 from app.commands import CommandHandler
 from dotenv import load_dotenv
@@ -45,11 +43,29 @@ class App:
                 if hasattr(plugin_module, 'register_commands'):
                     plugin_module.register_commands(self.command_handler)
 
+    def is_valid_command(self, command_name: str) -> bool:
+        """Check if the command is valid."""
+        return command_name in self.command_handler.commands
+
     def execute_in_process(self, command_input):
         """Execute the command in a separate process."""
         command_parts = command_input.split()
+        
+        # If no command is provided, return early
+        if not command_parts:
+            logging.info("No command entered.")
+            return
+        
         command_name = command_parts[0]
         command_args = command_parts[1:]  # All arguments after the command name
+
+        # Check if the command is valid
+        if not self.is_valid_command(command_name):
+            message = f"No such command: {command_name}"
+            logging.info(message)  # Log the error
+            return  # Exit the method if the command is invalid
+
+        # If the command is valid, execute it in a separate process
         process = multiprocessing.Process(target=self.command_handler.execute_command, args=(command_name, command_args))
         process.start()
         self.processes.append(process)
@@ -62,7 +78,7 @@ class App:
             while True:  # REPL: Read, Evaluate, Print, Loop
                 user_input = input(">>> ").strip()
                 if user_input.lower() == 'exit':
-                    break
+                    raise SystemExit("Exiting...")  # Ensure SystemExit is raised here
                 self.execute_in_process(user_input)
         except KeyboardInterrupt:
             logging.info("Exiting...")
@@ -76,5 +92,3 @@ class App:
                 process.terminate()
         for process in self.processes:
             process.join()
-
-

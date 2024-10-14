@@ -30,6 +30,8 @@
 ## Python Code Example: Calculator
 
 ```python
+import logging
+
 class Operation:
     """Base class for operations, utilizing polymorphism for extendability."""
     @staticmethod
@@ -90,6 +92,6 @@ class Calculator:
 
 # Example usage
 calculator = Calculator()
-print(calculator.perform_calculation(10, 5, Operation.add))
-print(calculator.perform_calculation(10, 5, Operation.subtract))
-print(calculator.get_calculation_history())  # Display history
+logging.info(calculator.perform_calculation(10, 5, Operation.add))
+logging.info(calculator.perform_calculation(10, 5, Operation.subtract))
+logging.info(calculator.get_calculation_history())  # Display history

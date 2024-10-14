@@ -1,6 +1,6 @@
 from app.commands import Command
-
+import logging
 
 class GoodbyeCommand(Command):
     def execute(self):
-        print("Goodbye")
+        logging.info("Goodbye")
